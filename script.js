@@ -52,9 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Process typed and original texts
         const typedWordsArray = typedText.value.trim().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
-        const originalText = textSection.innerText.trim().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
+        const originalTextArray = textSection.innerText.trim().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
         
-        const correctWords = typedWordsArray.filter((word, index) => word.toLowerCase() === originalText[index]?.toLowerCase()).length;
+        let correctWords = 0;
+        typedWordsArray.forEach((word, index) => {
+            if (word.toLowerCase() === originalTextArray[index]?.toLowerCase()) {
+                correctWords++;
+            }
+        });
+        
         const wrongWords = typedWordsArray.length - correctWords;
         const netSpeed = (correctWords / totalTime) * 60;
         const accuracy = (correctWords / typedWordsArray.length) * 100;
