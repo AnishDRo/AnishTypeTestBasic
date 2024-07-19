@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Test</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Typing Test</h1>
+    <div class="timer" id="timer">15:00</div>
+    <div class="test-container">
+      <div class="text-section" id="text-section">
+        <!-- Text to be typed will go here -->
+      </div>
+      <textarea id="typed-text" placeholder="Start typing here..."></textarea>
+    </div>
+    <div class="button-container">
+      <button id="submit-button">Submit</button>
+      <button id="restart-button">Restart</button>
+    </div>
+    <div class="result-stats" id="result-stats" style="display: none;">
+      <!-- Results will be shown here -->
+    </div>
+    <div class="text-diff" id="text-comparison" style="display: none;">
+      <!-- Text comparison will be shown here -->
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

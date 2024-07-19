@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test Results</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Typing Test Results</h1>
+        <div class="result-stats">
+            <p>Time Taken: <span id="result-timeTaken"></span></p>
+            <p>Typed Words: <span id="result-typedWords"></span></p>
+            <p>Correct Words: <span id="result-correctWords"></span></p>
+            <p>Wrong Words: <span id="result-wrongWords"></span></p>
+            <p>Net Speed WPM: <span id="result-netSpeed"></span></p>
+            <p>Speed Accuracy: <span id="result-accuracy"></span>%</p>
+        </div>
+        <div class="text-diff">
+            <p>Comparison:</p>
+            <pre id="text-comparison"></pre>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('result-timeTaken').innerText = urlParams.get('timeTaken');
+            document.getElementById('result-typedWords').innerText = urlParams.get('typedWords');
+            document.getElementById('result-correctWords').innerText = urlParams.get('correctWords');
+            document.getElementById('result-wrongWords').innerText = urlParams.get('wrongWords');
+            document.getElementById('result-netSpeed').innerText = urlParams.get('netSpeed');
+            document.getElementById('result-accuracy').innerText = urlParams.get('accuracy');
+
+            const originalText = localStorage.getItem('originalText').split(' ');
+            const typedText = localStorage.getItem('typedText').split(' ');
+            const textComparison = document.getElementById('text-comparison');
+            let comparisonHtml = '';
+
+            for (let i = 0; i < originalText.length; i++) {
+                if (typedText[i] === undefined) {
+                    comparisonHtml += `<span class="wrong">${originalText[i]} </span>`;
+                } else if (typedText[i] === originalText[i]) {
+                    comparisonHtml += `<span class="correct">${typedText[i]} </span>`;
+                } else {
+                    comparisonHtml += `<span class="wrong">${typedText[i]} </span>`;
+                }
+            }
+
+            textComparison.innerHTML = comparisonHtml;
+        });
+    </script>
+</body>
+</html>
