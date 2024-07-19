@@ -1,10 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const textSection = document.getElementById('text-to-type');
+    const textSection = document.getElementById('text-section');
     const typedText = document.getElementById('typed-text');
-    const submitButton = document.getElementById('submit');
-    const restartButton = document.getElementById('restart');
-    const resultStats = document.getElementById('result-stats');
-    const textComparison = document.getElementById('text-comparison');
+    const submitButton = document.getElementById('submit-button');
+    const restartButton = document.getElementById('restart-button');
     let startTime, endTime, timerInterval, countdownInterval;
     let timeLeft = 15 * 60; // 15 minutes in seconds
 
@@ -23,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timerInterval = setInterval(() => {
             const currentTime = new Date().getTime();
             const totalTime = ((currentTime - startTime) / 1000).toFixed(2);
+            document.getElementById('time-elapsed').innerText = totalTime;
         }, 100);
     }
 
@@ -51,46 +50,71 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(countdownInterval);
         const totalTime = (endTime - startTime) / 1000;
         const typedWordsArray = typedText.value.trim().split(/\s+/);
-        const originalWordsArray = textSection.innerText.trim().split(/\s+/);
-        const correctWords = typedWordsArray.filter((word, index) => word === originalWordsArray[index]).length;
+        const originalText = textSection.innerText.trim().split(/\s+/);
+        const correctWords = typedWordsArray.filter((word, index) => word === originalText[index]).length;
         const wrongWords = typedWordsArray.length - correctWords;
         const netSpeed = (correctWords / totalTime) * 60;
         const accuracy = (correctWords / typedWordsArray.length) * 100;
 
-        resultStats.innerHTML = `
-            <p>Time Taken: ${totalTime.toFixed(2)} seconds</p>
-            <p>Typed Words: ${typedWordsArray.length}</p>
-            <p>Correct Words: ${correctWords}</p>
-            <p>Wrong Words: ${wrongWords}</p>
-            <p>Net Speed: ${netSpeed.toFixed(2)} WPM</p>
-            <p>Accuracy: ${accuracy.toFixed(2)} %</p>
-        `;
+        // Store results in localStorage
+        localStorage.setItem('typedText', typedText.value);
+        localStorage.setItem('originalText', textSection.innerText);
+        localStorage.setItem('timeTaken', totalTime.toFixed(2));
+        localStorage.setItem('typedWords', typedWordsArray.length);
+        localStorage.setItem('correctWords', correctWords);
+        localStorage.setItem('wrongWords', wrongWords);
+        localStorage.setItem('netSpeed', netSpeed.toFixed(2));
+        localStorage.setItem('accuracy', accuracy.toFixed(2));
 
-        displayTextComparison(originalWordsArray, typedWordsArray);
-        resultStats.style.display = 'block';
-        textComparison.style.display = 'block';
+        displayResults(totalTime, typedWordsArray.length, correctWords, wrongWords, netSpeed, accuracy);
     }
 
-    function displayTextComparison(originalWordsArray, typedWordsArray) {
-        const comparisonHTML = originalWordsArray.map((word, index) => {
-            if (word === typedWordsArray[index]) {
-                return `<span class="correct">${word}</span>`;
-            } else {
-                return `<span class="wrong">${word}</span>`;
-            }
+    function displayResults(time, typedWords, correctWords, wrongWords, netSpeed, accuracy) {
+        const resultStats = document.getElementById('result-stats');
+        resultStats.style.display = 'block';
+        resultStats.innerHTML = `
+            <p>Time Taken: ${time} seconds</p>
+            <p>Typed Words: ${typedWords}</p>
+            <p>Correct Words: ${correctWords}</p>
+            <p>Wrong Words: ${wrongWords}</p>
+            <p>Net Speed: ${netSpeed} WPM</p>
+            <p>Accuracy: ${accuracy} %</p>
+        `;
+        
+        const textComparison = document.getElementById('text-comparison');
+        const typedText = localStorage.getItem('typedText').split(' ');
+        const originalText = localStorage.getItem('originalText').split(' ');
+        const resultTextHTML = originalText.map((word, index) => {
+            const typedWord = typedText[index] || '';
+            return `<span class="${typedWord === word ? 'correct' : 'wrong'}">${typedWord}</span>`;
         }).join(' ');
-
-        textComparison.innerHTML = comparisonHTML;
+        textComparison.innerHTML = resultTextHTML;
+        textComparison.style.display = 'block';
     }
 
     function restartTest() {
         typedText.value = '';
-        resultStats.style.display = 'none';
-        textComparison.style.display = 'none';
-        document.getElementById('timer').innerText = '15:00';
-        timeLeft = 15 * 60;
         startTime = null;
-        clearInterval(timerInterval);
+        endTime = null;
+        stopTimer();
         clearInterval(countdownInterval);
+        timeLeft = 15 * 60; // Reset the countdown
+        document.getElementById('timer').innerText = '15:00';
+        document.getElementById('result-stats').style.display = 'none';
+        document.getElementById('text-comparison').style.display = 'none';
     }
+
+    fetch('paragraph.html')
+    .then(response => response.text())
+    .then(data => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        const paragraphContent = doc.getElementById('paragraph-content');
+        if (paragraphContent) {
+            textSection.innerHTML = paragraphContent.innerHTML;
+        } else {
+            console.error('Error: paragraph-content not found');
+        }
+    })
+    .catch(error => console.error('Error fetching paragraph:', error));
 });
