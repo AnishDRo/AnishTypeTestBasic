@@ -49,22 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
         stopTimer();
         clearInterval(countdownInterval);
         const totalTime = (endTime - startTime) / 1000;
-        
-        // Process typed and original texts
-        const typedWordsArray = typedText.value.trim().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
-        const originalTextArray = textSection.innerText.trim().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
-        
+
+        // Normalize and split texts into words
+        const normalizeText = text => text.toLowerCase().replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").trim().split(" ");
+        const originalTextArray = normalizeText(textSection.innerText);
+        const typedWordsArray = normalizeText(typedText.value);
+
+        // Count correct and incorrect words
         let correctWords = 0;
         typedWordsArray.forEach((word, index) => {
-            if (word.toLowerCase() === originalTextArray[index]?.toLowerCase()) {
+            if (word === originalTextArray[index]) {
                 correctWords++;
             }
         });
-        
+
         const wrongWords = typedWordsArray.length - correctWords;
         const netSpeed = (correctWords / totalTime) * 60;
         const accuracy = (correctWords / typedWordsArray.length) * 100;
-    
+
         // Store results in localStorage
         localStorage.setItem('typedText', typedText.value);
         localStorage.setItem('originalText', textSection.innerText);
@@ -74,10 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('wrongWords', wrongWords);
         localStorage.setItem('netSpeed', netSpeed.toFixed(2));
         localStorage.setItem('accuracy', accuracy.toFixed(2));
-    
+
         displayResults(totalTime, typedWordsArray.length, correctWords, wrongWords, netSpeed, accuracy);
     }
-    
+
     function displayResults(time, typedWords, correctWords, wrongWords, netSpeed, accuracy) {
         const resultStats = document.getElementById('result-stats');
         resultStats.style.display = 'block';
@@ -89,15 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <p>Net Speed: ${netSpeed} WPM</p>
             <p>Accuracy: ${accuracy} %</p>
         `;
-        
+
         const textComparison = document.getElementById('text-comparison');
-        const typedTextArray = localStorage.getItem('typedText').replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
-        const originalTextArray = localStorage.getItem('originalText').replace(/[^\w\s]|_/g, "").replace(/\s+/g, " ").split(" ");
-        
+        const typedTextArray = localStorage.getItem('typedText').split(' ');
+        const originalTextArray = localStorage.getItem('originalText').split(' ');
+
         const resultTextHTML = originalTextArray.map((word, index) => {
             const typedWord = typedTextArray[index] || '';
             return `<span class="${typedWord.toLowerCase() === word.toLowerCase() ? 'correct' : 'wrong'}">${typedWord}</span>`;
         }).join(' ');
+
         textComparison.innerHTML = resultTextHTML;
         textComparison.style.display = 'block';
     }
